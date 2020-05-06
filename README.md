@@ -1,5 +1,5 @@
 # FurGAN
 A furry Gan project
-A very heavly modifyed version of dcgan
+A very heavily modified version of dcgan
 
-This repo is only for backups, I will delete and remake this later
+This repo is only for backups, I will delete and remake this later!
