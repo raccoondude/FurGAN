@@ -13,6 +13,18 @@ from tensorflow.keras import layers
 import time
 from IPython import display
 
+
+#configureable variables
+DATASET = "Art"
+GETDATAFROMDIR = True
+OUTPUTX = 28
+OUTPUTY = 28
+OUTPUTZ = 3
+LOAD = True
+EPOCHS = 5
+noise_dim = 100
+num_examples_to_generate = 16
+
 def getImageArray(Dataset):
     #Define main variable
     data = []
@@ -26,23 +38,27 @@ def getImageArray(Dataset):
         print("{}/{}".format(click, len(imagePaths)))
         image = cv2.imread(imagePath)
         #Resize image 50x50x3
-        image = cv2.resize(image, (400,400))
+        image = cv2.resize(image, (OUTPUTX,OUTPUTY))
         print(image)
         print(image.shape)
         data.append(image)
     data = np.array(data)
     return data
 
-DATASET = "Art"
-data = getImageArray(DATASET)
+if GETDATAFROMDIR == True:
+    data = getImageArray(DATASET)
+else:
+    pass #Add your own way of getting data
 
-data = data.reshape(data.shape[0], 400, 400, 3).astype("float32")
+data = data.reshape(data.shape[0], OUTPUTX, OUTPUTY, OUTPUTZ).astype("float32")
 data = (data - 127.5) / 127.5
 BUFFER_SIZE = 60000
 BATCH_SIZE = 12
 
 train_dataset = tf.data.Dataset.from_tensor_slices(data).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
 
+
+#configureable!
 def make_generator_model():
     model = tf.keras.Sequential()
     model.add(layers.Dense(50*50*100, use_bias=False, input_shape=(100,)))
@@ -68,7 +84,7 @@ def make_generator_model():
     model.add(layers.LeakyReLU())
 
     model.add(layers.Conv2DTranspose(3, (5, 5), strides=(2, 2), padding='same', use_bias=False, activation='tanh'))
-    assert model.output_shape == (None, 400, 400, 3)
+    assert model.output_shape == (None, OUTPUTX, OUTPUTY, OUTPUTZ)
 
     return model
 
@@ -79,7 +95,7 @@ generator = make_generator_model()
 def make_discriminator_model():
     model = tf.keras.Sequential()
     model.add(layers.Conv2D(64, (5, 5), strides=(2, 2), padding='same',
-                                     input_shape=[400, 400, 3]))
+                                     input_shape=[OUTPUTX, OUTPUTY, OUTPUTZ]))
     model.add(layers.LeakyReLU())
     model.add(layers.Dropout(0.3))
 
@@ -132,11 +148,6 @@ def generate_and_save_images(model, epoch, test_input):
 
   plt.savefig('image_at_epoch_{:04d}.png'.format(epoch))
 
-
-LOAD = True
-EPOCHS = 5
-noise_dim = 100
-num_examples_to_generate = 16
 
 if LOAD == True:
     checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
