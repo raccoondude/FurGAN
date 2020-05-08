@@ -1,5 +1,4 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+#Random static generator using the NN
 
 import matplotlib.pyplot as plt
 import tensorflow as tf
