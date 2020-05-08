@@ -33,3 +33,7 @@ def make_generator_model():
     return model
 
 model = make_generator_model()
+noise = tf.random.normal([1, 100])
+img = model(noise, training=False)
+plt.imshow(img[0, :, :, 0], cmap="gray")
+plt.show()
